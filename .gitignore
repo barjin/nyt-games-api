@@ -4,6 +4,8 @@
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+dist/
+node_modules/
 
 # Swap the comments on the following lines if you wish to use zero-installs
 # In that case, don't forget to run `yarn config set enableGlobalCache false`!
@@ -11,3 +13,8 @@
 
 #!.yarn/cache
 .pnp.*
+
+# Added by Apify CLI
+storage
+node_modules
+.venv

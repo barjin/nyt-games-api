@@ -1,4 +1,23 @@
 {
   "name": "nyt-games-api",
-  "packageManager": "yarn@4.6.0"
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "jsdom": "^27.4.0"
+  },
+  "packageManager": "yarn@4.12.0",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/jsdom": "^27",
+    "@types/node": "^25.0.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
 }
