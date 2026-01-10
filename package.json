@@ -9,6 +9,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "apify": "^3.5.3",
     "express": "^5.2.1",
     "jsdom": "^27.4.0"
   },

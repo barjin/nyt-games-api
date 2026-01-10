@@ -1,0 +1,40 @@
+{
+    "$schema": "https://apify-projects.github.io/actor-json-schemas/input.json?v=0.3",
+    "title": "NYT Games Scraper",
+    "type": "object",
+    "description": "NYT Games Scraper allows you to programmatically access the New York Times Games data. You can also use the Actor as an API by calling the apify.actor endpoint.",
+    "schemaVersion": 1,
+    "properties": {
+        "game": {
+            "title": "Puzzle to scrape",
+            "type": "string",
+            "description": "Pick the puzzle you want to scrape.",
+            "default": "wordle",
+            "editor": "select",
+            "enum": [
+                "wordle",
+                "pips",
+                "connections",
+                "mini",
+                "letterboxed",
+                "spelling-bee"
+            ],
+            "enumTitles": [
+                "Wordle",
+                "Pips",
+                "Connections",
+                "Mini",
+                "Letterboxed",
+                "Spelling Bee"
+            ]
+        },
+        "absoluteDate": {
+            "title": "Date",
+            "type": "string",
+            "description": "Scrape historical data for a specific date.",
+            "editor": "datepicker",
+            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+            "nullable": true
+        }
+    }
+}
