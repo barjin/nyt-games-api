@@ -19,3 +19,12 @@ To access the historical data for these games, you can use the `date` parameter 
 - `https://jindrich-bar--nyt-games-api.apify.actor/pips/2025-10-25?token=[YOUR_APIFY_TOKEN]` for the Pips game on October 25, 2022
 
 Alternatively, you can use the Input tab to specify the game and date you want to query. Once run, the Actor will fetch the data from the appropriate endpoint and store it in the Run dataset.
+
+## Running locally
+
+To run the server locally, clone the GitHub repository and run the following command:
+
+```bash
+yarn start:server
+# npm run start:server works too
+```

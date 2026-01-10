@@ -19,4 +19,4 @@ COPY --from=builder /app/dist ./dist
 
 RUN corepack enable && yarn workspaces focus --production
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:actor"]

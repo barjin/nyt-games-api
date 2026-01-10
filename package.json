@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "start": "node dist/actor.js",
+    "start": "tsx watch src/server.ts",
+    "start:actor": "node dist/actor.js",
     "build": "tsc"
   },
   "dependencies": {
