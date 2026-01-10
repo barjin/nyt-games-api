@@ -2,7 +2,7 @@
     "$schema": "https://apify-projects.github.io/actor-json-schemas/input.json?v=0.3",
     "title": "NYT Games Scraper",
     "type": "object",
-    "description": "NYT Games Scraper allows you to programmatically access the New York Times Games data. You can also use the Actor as an API by calling the apify.actor endpoint.",
+    "description": "NYT Games Scraper allows you to programmatically access the New York Times Games data. You can also use the Actor as an API by calling the Standby endpoint.",
     "schemaVersion": 1,
     "properties": {
         "game": {
