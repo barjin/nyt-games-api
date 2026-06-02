@@ -3,5 +3,7 @@
 	"name": "nyt-games-api",
 	"version": "0.0",
 	"buildTag": "latest",
-	"environmentVariables": {}
+	"environmentVariables": {},
+	"usesStandbyMode": true,
+	"webServerSchema": "./openapi.json"
 }

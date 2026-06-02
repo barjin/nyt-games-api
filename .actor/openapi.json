@@ -1,0 +1,797 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "NYT Games API",
+        "description": "Unofficial API for New York Times Games. Fetch puzzle data for Wordle, Pips, Connections, the Mini crossword, Letter Boxed and Spelling Bee. Each game endpoint returns today's puzzle, and most accept an optional date path parameter (formatted YYYY-MM-DD) to retrieve historical data. Responses are passed through from the New York Times, so undocumented fields may appear.",
+        "version": "0.1.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Actor Standby web server"
+        }
+    ],
+    "components": {
+        "parameters": {
+            "date": {
+                "name": "date",
+                "in": "path",
+                "required": true,
+                "description": "Puzzle date, formatted as YYYY-MM-DD.",
+                "schema": {
+                    "type": "string",
+                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+                    "example": "2025-12-31"
+                }
+            }
+        },
+        "schemas": {
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "Human-readable error message."
+                    }
+                },
+                "required": [
+                    "error"
+                ]
+            },
+            "Wordle": {
+                "type": "object",
+                "description": "A single Wordle puzzle.",
+                "additionalProperties": true,
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1635
+                    },
+                    "solution": {
+                        "type": "string",
+                        "description": "The five-letter answer.",
+                        "example": "basis"
+                    },
+                    "print_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-02"
+                    },
+                    "days_since_launch": {
+                        "type": "integer",
+                        "example": 1809
+                    },
+                    "editor": {
+                        "type": "string",
+                        "example": "Tracy Bennett"
+                    }
+                }
+            },
+            "ConnectionsCard": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "example": "COVERT"
+                    },
+                    "position": {
+                        "type": "integer",
+                        "description": "Original shuffled position of the card on the 4x4 board (0-15).",
+                        "example": 14
+                    }
+                }
+            },
+            "ConnectionsCategory": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "CLANDESTINE"
+                    },
+                    "cards": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ConnectionsCard"
+                        }
+                    }
+                }
+            },
+            "Connections": {
+                "type": "object",
+                "description": "A single Connections puzzle with four categories of four cards.",
+                "additionalProperties": true,
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "OK"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "example": 1173
+                    },
+                    "print_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-02"
+                    },
+                    "editor": {
+                        "type": "string",
+                        "example": "Wyna Liu"
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ConnectionsCategory"
+                        }
+                    }
+                }
+            },
+            "PipsRegion": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "indices": {
+                        "type": "array",
+                        "description": "Grid coordinates [row, col] that belong to this region.",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                        }
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Region constraint type.",
+                        "example": "sum",
+                        "enum": [
+                            "sum",
+                            "equals",
+                            "empty",
+                            "less",
+                            "greater"
+                        ]
+                    },
+                    "target": {
+                        "type": "integer",
+                        "description": "Target value for constraints that require one (e.g. sum, less, greater).",
+                        "example": 8
+                    }
+                }
+            },
+            "PipsPuzzle": {
+                "type": "object",
+                "description": "A Pips puzzle at a single difficulty level.",
+                "additionalProperties": true,
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 957
+                    },
+                    "backendId": {
+                        "type": "string",
+                        "example": "795d4a8e538f5c339cef5ddac2c061e7"
+                    },
+                    "constructors": {
+                        "type": "string",
+                        "example": "Ian Livengood"
+                    },
+                    "dominoes": {
+                        "type": "array",
+                        "description": "Available dominoes, each a pair of pip counts.",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                        }
+                    },
+                    "regions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PipsRegion"
+                        }
+                    },
+                    "solution": {
+                        "type": "array",
+                        "description": "Placement of each domino as a pair of [row, col] cells.",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "minItems": 2,
+                                "maxItems": 2
+                            }
+                        }
+                    }
+                }
+            },
+            "Pips": {
+                "type": "object",
+                "description": "Pips puzzles for a single date, one per difficulty level.",
+                "additionalProperties": true,
+                "properties": {
+                    "printDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-02"
+                    },
+                    "editor": {
+                        "type": "string",
+                        "example": "Ian Livengood"
+                    },
+                    "easy": {
+                        "$ref": "#/components/schemas/PipsPuzzle"
+                    },
+                    "medium": {
+                        "$ref": "#/components/schemas/PipsPuzzle"
+                    },
+                    "hard": {
+                        "$ref": "#/components/schemas/PipsPuzzle"
+                    }
+                }
+            },
+            "MiniBody": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "board": {
+                        "type": "string",
+                        "description": "Rendered SVG of the crossword board."
+                    },
+                    "cells": {
+                        "type": "array",
+                        "description": "Per-cell data (answer letters, labels, etc.).",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "clueLists": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "clues": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "dimensions": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                            "height": {
+                                "type": "integer"
+                            },
+                            "width": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "SVG": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            },
+            "Mini": {
+                "type": "object",
+                "description": "A single Mini crossword puzzle.",
+                "additionalProperties": true,
+                "properties": {
+                    "body": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MiniBody"
+                        }
+                    },
+                    "constructors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "copyright": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "lastUpdated": {
+                        "type": "string"
+                    },
+                    "publicationDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "subcategory": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "LetterBoxed": {
+                "type": "object",
+                "description": "A single Letter Boxed puzzle.",
+                "additionalProperties": true,
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 2737
+                    },
+                    "printDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-02"
+                    },
+                    "date": {
+                        "type": "string",
+                        "description": "Human-readable puzzle date.",
+                        "example": "June 2, 2026"
+                    },
+                    "expiration": {
+                        "type": "integer",
+                        "description": "Unix timestamp at which the puzzle expires.",
+                        "example": 1780470000
+                    },
+                    "sides": {
+                        "type": "array",
+                        "description": "Letters on each of the four sides of the box.",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "NAG",
+                            "EUF",
+                            "OKL",
+                            "SJW"
+                        ]
+                    },
+                    "ourSolution": {
+                        "type": "array",
+                        "description": "An example two-word solution.",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "JUGS",
+                            "SNOWFLAKE"
+                        ]
+                    },
+                    "dictionary": {
+                        "type": "array",
+                        "description": "All valid words for the puzzle.",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "SpellingBee": {
+                "type": "object",
+                "description": "Today's Spelling Bee puzzle (the `today` object from the upstream page data).",
+                "additionalProperties": true,
+                "properties": {
+                    "displayWeekday": {
+                        "type": "string",
+                        "example": "Tuesday"
+                    },
+                    "displayDate": {
+                        "type": "string",
+                        "example": "June 2, 2026"
+                    },
+                    "printDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-02"
+                    },
+                    "centerLetter": {
+                        "type": "string",
+                        "description": "The required center letter.",
+                        "example": "l"
+                    },
+                    "outerLetters": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "d",
+                            "e",
+                            "i",
+                            "m",
+                            "n",
+                            "w"
+                        ]
+                    },
+                    "validLetters": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "pangrams": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "windmilled"
+                        ]
+                    },
+                    "answers": {
+                        "type": "array",
+                        "description": "All accepted answers.",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "id": {
+                        "type": "integer",
+                        "example": 20401
+                    },
+                    "freeExpiration": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "editor": {
+                        "type": "string",
+                        "example": "Sam Ezersky"
+                    }
+                }
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "Invalid date format. Use YYYY-MM-DD.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "UpstreamError": {
+                "description": "The upstream New York Times service returned an error or the data could not be fetched.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/wordle": {
+            "get": {
+                "operationId": "getWordleToday",
+                "summary": "Get today's Wordle",
+                "description": "Returns the Wordle puzzle for the current date.",
+                "tags": [
+                    "Wordle"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today's Wordle puzzle.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Wordle"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/wordle/{date}": {
+            "get": {
+                "operationId": "getWordleByDate",
+                "summary": "Get Wordle by date",
+                "description": "Returns the Wordle puzzle for a specific date.",
+                "tags": [
+                    "Wordle"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Wordle puzzle for the requested date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Wordle"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/pips": {
+            "get": {
+                "operationId": "getPipsToday",
+                "summary": "Get today's Pips",
+                "description": "Returns the Pips puzzles for the current date.",
+                "tags": [
+                    "Pips"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today's Pips puzzles.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Pips"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/pips/{date}": {
+            "get": {
+                "operationId": "getPipsByDate",
+                "summary": "Get Pips by date",
+                "description": "Returns the Pips puzzles for a specific date.",
+                "tags": [
+                    "Pips"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Pips puzzles for the requested date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Pips"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/connections": {
+            "get": {
+                "operationId": "getConnectionsToday",
+                "summary": "Get today's Connections",
+                "description": "Returns the Connections puzzle for the current date.",
+                "tags": [
+                    "Connections"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today's Connections puzzle.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Connections"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/connections/{date}": {
+            "get": {
+                "operationId": "getConnectionsByDate",
+                "summary": "Get Connections by date",
+                "description": "Returns the Connections puzzle for a specific date.",
+                "tags": [
+                    "Connections"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Connections puzzle for the requested date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Connections"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/mini": {
+            "get": {
+                "operationId": "getMiniToday",
+                "summary": "Get today's Mini crossword",
+                "description": "Returns the Mini crossword puzzle for the current date.",
+                "tags": [
+                    "Mini"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today's Mini crossword puzzle.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mini"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/mini/{date}": {
+            "get": {
+                "operationId": "getMiniByDate",
+                "summary": "Get Mini crossword by date",
+                "description": "Returns the Mini crossword puzzle for a specific date.",
+                "tags": [
+                    "Mini"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Mini crossword puzzle for the requested date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mini"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/letterboxed": {
+            "get": {
+                "operationId": "getLetterboxed",
+                "summary": "Get today's Letter Boxed",
+                "description": "Returns the Letter Boxed puzzle for the current date. Historical data is not available for this game.",
+                "tags": [
+                    "Letter Boxed"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today's Letter Boxed puzzle.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LetterBoxed"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/spelling-bee": {
+            "get": {
+                "operationId": "getSpellingBeeToday",
+                "summary": "Get today's Spelling Bee",
+                "description": "Returns the Spelling Bee puzzle for the current date.",
+                "tags": [
+                    "Spelling Bee"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today's Spelling Bee puzzle.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SpellingBee"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        },
+        "/spelling-bee/{date}": {
+            "get": {
+                "operationId": "getSpellingBeeByDate",
+                "summary": "Get Spelling Bee by date",
+                "description": "Returns the Spelling Bee puzzle for a specific date. Historical data is limited to roughly the last two weeks.",
+                "tags": [
+                    "Spelling Bee"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Spelling Bee puzzle for the requested date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SpellingBee"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/UpstreamError"
+                    }
+                }
+            }
+        }
+    }
+}
